@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prompt Tester</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="/modules/shared/css/common.css">
+  </head>
+  <body class="bg-gray-50 min-h-screen text-gray-800">
+    <!-- Navigation -->
+    <nav class="nav-container">
+      <div class="nav-content">
+        <a href="/modules/prompt-tester/" class="nav-item active" data-module="prompt-tester">
+          Prompt Tester
+        </a>
+        <a href="/modules/api-tester/" class="nav-item" data-module="api-tester">
+          API Tester
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="bg-white border-b">
+      <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
+        <h1 class="font-semibold text-lg">Prompt Tester</h1>
+        <div class="flex items-center space-x-3">
+          <select id="model" class="px-2 py-1 border rounded text-sm">
+            <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+          </select>
+          <button 
+            id="runBtn" 
+            class="px-4 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+          >
+            测试 Prompt
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-6xl mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Left -->
+      <div class="bg-white border rounded p-4 space-y-4">
+        <h2 class="font-medium text-gray-900">输入配置</h2>
+
+        <div>
+          <label for="serviceContext" class="block text-sm mb-1">SERVICE_CONTEXT</label>
+          <textarea id="serviceContext" class="w-full h-20 p-2 border rounded text-sm"></textarea>
+        </div>
+
+        <div>
+          <label for="promptTemplate" class="block text-sm mb-1">Prompt 模版</label>
+          <textarea id="promptTemplate" class="w-full h-24 p-2 border rounded text-sm"></textarea>
+        </div>
+
+        <div>
+          <label for="postTitle" class="block text-sm mb-1">Reddit 帖子标题</label>
+          <textarea id="postTitle" class="w-full h-16 p-2 border rounded text-sm"></textarea>
+        </div>
+
+        <div>
+          <label for="postBody" class="block text-sm mb-1">Reddit 帖子正文</label>
+          <textarea id="postBody" class="w-full h-24 p-2 border rounded text-sm"></textarea>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="bg-white border rounded p-4 flex flex-col">
+        <h2 class="font-medium text-gray-900 mb-2">AI 返回结果</h2>
+        <div id="status" class="text-sm text-gray-500 mb-2"></div>
+        <div id="result" class="flex-1 border rounded p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap"></div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-500 py-3 border-t">
+      使用 Ctrl+Enter 快速测试 • 支持 GPT-4o Mini, GPT-4o, GPT-4.1 Mini
+    </footer>
+
+    <script src="/modules/shared/js/common.js"></script>
+    <script src="/modules/prompt-tester/app.js"></script>
+  </body>
+</html>

@@ -26,6 +26,23 @@ const openai = new OpenAI({ apiKey: openaiApiKey });
 // Serve static frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve modules
+app.use('/modules', express.static(path.join(__dirname, 'modules')));
+
+// Root redirect to prompt-tester module
+app.get('/', (req, res) => {
+  res.redirect('/modules/prompt-tester/');
+});
+
+// Module routes
+app.get('/modules/prompt-tester/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'modules/prompt-tester/index.html'));
+});
+
+app.get('/modules/api-tester/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'modules/api-tester/index.html'));
+});
+
 function applyTemplate(template, replacements) {
   let result = template || '';
   for (const [key, value] of Object.entries(replacements)) {
