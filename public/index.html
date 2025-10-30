@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prompt Tester</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-sm">PT</span>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">Prompt Tester</h1>
+              <p class="text-sm text-gray-500">快速验证你的 Prompt 效果</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <select id="model" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm">
+              <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+            </select>
+            <button 
+              id="runBtn" 
+              class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center space-x-2"
+            >
+              <span>🚀</span>
+              <span>测试 Prompt</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
+        <!-- Left Panel - Inputs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">输入配置</h2>
+            <p class="text-sm text-gray-500">填写以下信息来测试你的 Prompt</p>
+          </div>
+          
+          <div class="flex-1 p-4 space-y-4 overflow-y-auto">
+            <!-- SERVICE_CONTEXT Section -->
+            <div class="space-y-2">
+              <label for="serviceContext" class="block text-sm font-semibold text-gray-700">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 mr-2">1</span>
+                SERVICE_CONTEXT
+              </label>
+              <textarea 
+                id="serviceContext" 
+                placeholder="在此粘贴 SERVICE_CONTEXT ..." 
+                class="w-full h-24 resize-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm bg-gray-50"
+              ></textarea>
+            </div>
+            
+            <!-- Prompt Template Section -->
+            <div class="space-y-2">
+              <label for="promptTemplate" class="block text-sm font-semibold text-gray-700">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 mr-2">2</span>
+                Prompt 模版
+              </label>
+              <textarea 
+                id="promptTemplate" 
+                placeholder="在此输入 prompt 模版，使用 {{agent_setting_query}}、{{post_title}}、{{post_selftext}}" 
+                class="w-full h-32 resize-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm bg-gray-50"
+              ></textarea>
+            </div>
+            
+            <!-- Post Title Section -->
+            <div class="space-y-2">
+              <label for="postTitle" class="block text-sm font-semibold text-gray-700">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800 mr-2">3</span>
+                Reddit 帖子标题
+              </label>
+              <textarea 
+                id="postTitle" 
+                placeholder="输入帖子标题 ..." 
+                class="w-full h-20 resize-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm bg-gray-50"
+              ></textarea>
+            </div>
+            
+            <!-- Post Body Section -->
+            <div class="space-y-2">
+              <label for="postBody" class="block text-sm font-semibold text-gray-700">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 mr-2">4</span>
+                Reddit 帖子正文
+              </label>
+              <textarea 
+                id="postBody" 
+                placeholder="输入帖子正文 ..." 
+                class="w-full h-32 resize-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm bg-gray-50"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-indigo-100 text-indigo-800 mr-2">AI</span>
+              AI 返回结果
+            </h2>
+            <div id="status" class="text-sm text-gray-600 mt-1"></div>
+          </div>
+          <div class="flex-1 p-4 overflow-hidden">
+            <div id="result" class="w-full h-full bg-gray-50 border border-gray-200 rounded-lg p-4 overflow-auto font-mono text-sm text-gray-800 whitespace-pre-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="text-center text-sm text-gray-500">
+          <p>使用 Ctrl+Enter 快速测试 • 支持 GPT-4o Mini, GPT-4o, GPT-4.1 Mini</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
+
