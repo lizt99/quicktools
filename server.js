@@ -71,13 +71,19 @@ app.post('/api/test', async (req, res) => {
 
     const modelToUse = model || 'gpt-4o-mini';
 
+    // Set temperature based on model type
+    let temperature = 0.7; // default for most models
+    if (modelToUse.startsWith('gpt-5')) {
+      temperature = 1; // GPT-5 series only supports default temperature (1)
+    }
+
     const response = await openai.chat.completions.create({
       model: modelToUse,
       messages: [
         { role: 'system', content: 'You are a helpful assistant for prompt testing.' },
         { role: 'user', content: finalPrompt }
       ],
-      temperature: 0.7
+      temperature: temperature
     });
 
     const message = response.choices?.[0]?.message?.content ?? '';
