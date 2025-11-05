@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>俄罗斯方块</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="/modules/shared/css/common.css">
+    <style>
+      .game-board {
+        border: 3px solid #374151;
+        background: #1f2937;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .game-cell {
+        border: 1px solid #374151;
+        width: 30px;
+        height: 30px;
+        background: #111827;
+      }
+      
+      .game-cell.filled {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      
+      .next-piece-board {
+        border: 2px solid #374151;
+        background: #1f2937;
+      }
+      
+      .next-cell {
+        border: 1px solid #374151;
+        width: 20px;
+        height: 20px;
+        background: #111827;
+      }
+      
+      .next-cell.filled {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      
+      .score-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .game-button {
+        transition: all 0.2s;
+      }
+      
+      .game-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      
+      .game-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      @keyframes lineClear {
+        0%, 100% { background-color: inherit; }
+        50% { background-color: white; opacity: 0.8; }
+      }
+      
+      .line-clearing {
+        animation: lineClear 0.3s ease-in-out;
+      }
+      
+      /* 音量滑块样式 */
+      #volumeControl {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        background: #d1d5db;
+        outline: none;
+      }
+      
+      #volumeControl::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      
+      #volumeControl::-webkit-slider-thumb:hover {
+        background: #4f46e5;
+      }
+      
+      #volumeControl::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        border: none;
+        transition: background 0.2s;
+      }
+      
+      #volumeControl::-moz-range-thumb:hover {
+        background: #4f46e5;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen text-gray-800">
+    <!-- Navigation -->
+    <nav class="nav-container">
+      <div class="nav-content">
+        <a href="/modules/prompt-tester/" class="nav-item" data-module="prompt-tester">
+          Prompt Tester
+        </a>
+        <a href="/modules/api-tester/" class="nav-item" data-module="api-tester">
+          API Tester
+        </a>
+        <a href="/modules/tetris/" class="nav-item active" data-module="tetris">
+          俄罗斯方块
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="bg-white border-b">
+      <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
+        <h1 class="font-semibold text-lg">俄罗斯方块</h1>
+        <div class="flex items-center space-x-3">
+          <button 
+            id="musicToggleBtn" 
+            class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 game-button"
+            title="切换背景音乐"
+          >
+            <span id="musicIcon">🔇</span>
+          </button>
+          <input 
+            type="range" 
+            id="volumeControl" 
+            min="0" 
+            max="100" 
+            value="50" 
+            class="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            title="音量控制"
+          />
+          <button 
+            id="startBtn" 
+            class="px-4 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 game-button"
+          >
+            开始游戏
+          </button>
+          <button 
+            id="pauseBtn" 
+            class="px-4 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 game-button"
+            disabled
+          >
+            暂停
+          </button>
+          <button 
+            id="resetBtn" 
+            class="px-4 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 game-button"
+          >
+            重置
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <div class="flex flex-col lg:flex-row gap-6 items-start justify-center">
+        <!-- Left Side - Game Info -->
+        <div class="w-full lg:w-64 space-y-4">
+          <!-- Score Card -->
+          <div class="score-card">
+            <div class="text-center">
+              <div class="text-sm opacity-90">分数</div>
+              <div id="score" class="text-3xl font-bold">0</div>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div class="opacity-90">行数</div>
+                <div id="lines" class="text-xl font-bold">0</div>
+              </div>
+              <div>
+                <div class="opacity-90">等级</div>
+                <div id="level" class="text-xl font-bold">1</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Piece -->
+          <div class="bg-white border rounded p-4">
+            <h3 class="font-medium text-gray-900 mb-2">下一个</h3>
+            <div id="nextPiece" class="next-piece-board flex justify-center items-center" style="width: 100px; height: 80px;"></div>
+          </div>
+
+          <!-- Controls -->
+          <div class="bg-white border rounded p-4">
+            <h3 class="font-medium text-gray-900 mb-2">操作说明</h3>
+            <div class="text-xs text-gray-600 space-y-1">
+              <div>← → : 左右移动</div>
+              <div>↓ : 加速下落</div>
+              <div>↑ : 旋转</div>
+              <div>空格 : 瞬间下落</div>
+              <div>P : 暂停/继续</div>
+            </div>
+          </div>
+
+          <!-- Game Status -->
+          <div id="gameStatus" class="bg-white border rounded p-4 text-center text-sm text-gray-600">
+            点击"开始游戏"开始
+          </div>
+        </div>
+
+        <!-- Center - Game Board -->
+        <div class="flex-shrink-0">
+          <canvas id="gameCanvas" class="game-board" width="300" height="600"></canvas>
+        </div>
+
+        <!-- Right Side - Additional Info -->
+        <div class="w-full lg:w-64 space-y-4">
+          <!-- Statistics -->
+          <div class="bg-white border rounded p-4">
+            <h3 class="font-medium text-gray-900 mb-2">统计</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600">最高分:</span>
+                <span id="highScore" class="font-semibold">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">方块数:</span>
+                <span id="pieces" class="font-semibold">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Speed Info -->
+          <div class="bg-white border rounded p-4">
+            <h3 class="font-medium text-gray-900 mb-2">速度</h3>
+            <div class="text-sm text-gray-600">
+              <div>当前速度: <span id="speed">1</span> 格/秒</div>
+              <div class="mt-2 text-xs opacity-75">
+                每消除10行，速度提升
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-500 py-3 border-t mt-6">
+      使用方向键控制 • 空格键快速下落 • P键暂停
+    </footer>
+
+    <!-- Background Music -->
+    <!-- 经典俄罗斯方块背景音乐 -->
+    <!-- 音乐文件可以放置在 modules/tetris/assets/ 目录下 -->
+    <!-- 支持的格式：MP3、OGG、WAV -->
+    <audio id="bgMusic" loop preload="auto">
+      <!-- 优先使用本地音乐文件 -->
+      <source src="/modules/tetris/assets/bgmusic.mp3" type="audio/mpeg">
+      <source src="/modules/tetris/assets/bgmusic.ogg" type="audio/ogg">
+      <source src="/modules/tetris/assets/bgmusic.wav" type="audio/wav">
+      <!-- 备用：8位风格音乐（需要网络连接） -->
+      <source src="https://freemusicarchive.org/file/music/ccCommunity/Javolenus/THE_TETRIS_THEME/THE_TETRIS_THEME.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="/modules/shared/js/common.js"></script>
+    <script src="/modules/tetris/app.js"></script>
+  </body>
+</html>
+

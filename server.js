@@ -43,6 +43,10 @@ app.get('/modules/api-tester/', (req, res) => {
   res.sendFile(path.join(__dirname, 'modules/api-tester/index.html'));
 });
 
+app.get('/modules/tetris/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'modules/tetris/index.html'));
+});
+
 function applyTemplate(template, replacements) {
   let result = template || '';
   for (const [key, value] of Object.entries(replacements)) {
